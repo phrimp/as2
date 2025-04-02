@@ -30,17 +30,17 @@ namespace DAO
 
         public SystemAccount GetAccount(String email, String password)
         {
-            return _dbContext.SystemAccounts.FirstOrDefault(m => m.AccountEmail.Equals(email) && m.AccountPassword.Equals(password));
+            return _dbContext.SystemAccounts.FirstOrDefault(m => m.AccountEmail == email && m.AccountPassword == password);
         }
 
-        public IEnumerable<SystemAccount> GetAllAccounts()
+        public List<SystemAccount> GetAllAccounts()
         {
             return _dbContext.SystemAccounts.ToList();
         }
 
         public SystemAccount GetAccountById(int id)
         {
-            return _dbContext.SystemAccounts.FirstOrDefault(a => a.AccountId == id);
+            return _dbContext.SystemAccounts.Find(id);
         }
 
         public SystemAccount GetAccountByEmail(string email)
@@ -48,7 +48,7 @@ namespace DAO
             return _dbContext.SystemAccounts.FirstOrDefault(a => a.AccountEmail == email);
         }
 
-        public IEnumerable<SystemAccount> GetAccountsByRole(string role)
+        public List<SystemAccount> GetAccountsByRole(string role)
         {
             return _dbContext.SystemAccounts.Where(a => a.AccountRole == role).ToList();
         }
@@ -61,26 +61,8 @@ namespace DAO
 
         public void UpdateAccount(SystemAccount account)
         {
-            try
-            {
-                // Find the existing entity
-                var existingAccount = _dbContext.SystemAccounts.Find(account.AccountId);
-
-                if (existingAccount != null)
-                {
-                    // Detach the existing entity
-                    _dbContext.Entry(existingAccount).State = EntityState.Detached;
-                }
-
-                // Now attach the updated entity and mark it as modified
-                _dbContext.Entry(account).State = EntityState.Modified;
-                _dbContext.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                // For debugging
-                throw new Exception($"Error updating account: {ex.Message}", ex);
-            }
+            _dbContext.Entry(account).State = EntityState.Modified;
+            _dbContext.SaveChanges();
         }
 
         public void DeleteAccount(int id)
@@ -93,12 +75,12 @@ namespace DAO
             }
         }
 
-        public IEnumerable<SystemAccount> SearchAccounts(string searchTerm)
+        public List<SystemAccount> SearchAccounts(string searchTerm)
         {
             return _dbContext.SystemAccounts
                 .Where(a => a.AccountName.Contains(searchTerm) ||
-                           a.AccountEmail.Contains(searchTerm) ||
-                           a.AccountRole.Contains(searchTerm))
+                            a.AccountEmail.Contains(searchTerm) ||
+                            a.AccountRole.Contains(searchTerm))
                 .ToList();
         }
 
@@ -122,7 +104,7 @@ namespace DAO
             return _dbContext.NewsArticles.Any(a => a.UpdatedById == accountId);
         }
 
-        public IEnumerable<NewsArticle> GetArticlesCreatedByAccount(int accountId)
+        public List<NewsArticle> GetArticlesCreatedByAccount(int accountId)
         {
             return _dbContext.NewsArticles
                 .Include(a => a.Category)
@@ -132,7 +114,7 @@ namespace DAO
                 .ToList();
         }
 
-        public IEnumerable<NewsArticle> GetArticlesUpdatedByAccount(int accountId)
+        public List<NewsArticle> GetArticlesUpdatedByAccount(int accountId)
         {
             return _dbContext.NewsArticles
                 .Include(a => a.Category)

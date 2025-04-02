@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "3JTSLn1Lx6U=",
+  "dgSpecHash": "n/mfyes+oTE=",
   "success": true,
-  "projectFilePath": "E:\\Work\\PhienNT_Net1709_A02\\DAO\\DAO.csproj",
+  "projectFilePath": "E:\\Work\\PhienNT_Net1709_AS2\\DAO\\DAO.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",

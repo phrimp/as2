@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "bfNaD044oJY=",
+  "dgSpecHash": "Julotaunz2U=",
   "success": true,
-  "projectFilePath": "E:\\Work\\PhienNT_Net1709_A02\\Models\\Models.csproj",
+  "projectFilePath": "E:\\Work\\PhienNT_Net1709_AS2\\Models\\Models.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",

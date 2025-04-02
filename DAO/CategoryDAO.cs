@@ -46,25 +46,12 @@ namespace DAO
 
         public void UpdateCategory(Category category)
         {
-            try
+            var existingCategory = _dbContext.Categories.Find(category.CategoryId);
+
+            if (existingCategory != null)
             {
-                var existingEntry = _dbContext.ChangeTracker.Entries<Category>()
-                    .FirstOrDefault(e => e.Entity.CategoryId == category.CategoryId);
-
-                if (existingEntry != null)
-                {
-                    _dbContext.Entry(existingEntry.Entity).State = EntityState.Detached;
-                }
-
-                _dbContext.Attach(category);
-                _dbContext.Entry(category).State = EntityState.Modified;
-
+                _dbContext.Entry(existingCategory).CurrentValues.SetValues(category);
                 _dbContext.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error updating category: {ex.Message}");
-                throw;
             }
         }
 
@@ -76,24 +63,6 @@ namespace DAO
                 _dbContext.Categories.Remove(category);
                 _dbContext.SaveChanges();
             }
-        }
-
-        public IEnumerable<Category> GetActiveCategories()
-        {
-            return _dbContext.Categories.Where(c => c.IsActive).ToList();
-        }
-
-        public IEnumerable<Category> SearchCategories(string searchTerm)
-        {
-            return _dbContext.Categories
-                .Where(c => c.CategoryName.Contains(searchTerm) ||
-                            c.CategoryDesciption.Contains(searchTerm))
-                .ToList();
-        }
-
-        public bool IsCategoryUsedInArticles(int categoryId)
-        {
-            return _dbContext.NewsArticles.Any(a => a.CategoryId == categoryId);
         }
     }
 }

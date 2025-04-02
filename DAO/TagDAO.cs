@@ -28,14 +28,14 @@ namespace DAO
             }
         }
 
-        public IEnumerable<Tag> GetAllTags()
+        public List<Tag> GetAllTags()
         {
             return _dbContext.Tags.ToList();
         }
 
         public Tag GetTagById(int id)
         {
-            return _dbContext.Tags.FirstOrDefault(t => t.TagId == id);
+            return _dbContext.Tags.Find(id);
         }
 
         public Tag GetTagByName(string name)
@@ -43,7 +43,7 @@ namespace DAO
             return _dbContext.Tags.FirstOrDefault(t => t.TagName == name);
         }
 
-        public IEnumerable<Tag> SearchTags(string searchTerm)
+        public List<Tag> SearchTags(string searchTerm)
         {
             return _dbContext.Tags
                 .Where(t => t.TagName.Contains(searchTerm) ||
@@ -73,78 +73,53 @@ namespace DAO
             }
         }
 
-        public IEnumerable<Tag> GetTagsByArticleId(int articleId)
+        public List<Tag> GetTagsByArticleId(int articleId)
         {
-            return _dbContext.NewsArticles
+            var article = _dbContext.NewsArticles
                 .Include(a => a.Tags)
-                .FirstOrDefault(a => a.NewsArticleId == articleId)?.Tags;
+                .FirstOrDefault(a => a.NewsArticleId == articleId);
+
+            return article?.Tags?.ToList() ?? new List<Tag>();
         }
 
         public bool IsTagUsedInArticles(int tagId)
         {
-            return _dbContext.Tags
+            var tag = _dbContext.Tags
                 .Include(t => t.NewsArticles)
-                .FirstOrDefault(t => t.TagId == tagId)?.NewsArticles.Any() ?? false;
+                .FirstOrDefault(t => t.TagId == tagId);
+
+            return tag?.NewsArticles?.Any() ?? false;
         }
-        // This should be in your NewsArticleDAO.cs file
 
         public void AddTagToNewsArticle(int articleId, int tagId)
         {
-            try
-            {
-                // Always use a fresh context for relationship operations
-                using (var context = new NewsSystemContext())
-                {
-                    var article = context.NewsArticles
-                        .Include(a => a.Tags)
-                        .FirstOrDefault(a => a.NewsArticleId == articleId);
+            var article = _dbContext.NewsArticles
+                .Include(a => a.Tags)
+                .FirstOrDefault(a => a.NewsArticleId == articleId);
 
-                    var tag = context.Tags.Find(tagId);
+            var tag = _dbContext.Tags.Find(tagId);
 
-                    if (article != null && tag != null)
-                    {
-                        // Check if the relationship already exists
-                        if (!article.Tags.Any(t => t.TagId == tagId))
-                        {
-                            article.Tags.Add(tag);
-                            context.SaveChanges();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
+            if (article != null && tag != null && !article.Tags.Any(t => t.TagId == tagId))
             {
-                Console.WriteLine($"Error adding tag to article: {ex.Message}");
-                throw;
+                article.Tags.Add(tag);
+                _dbContext.SaveChanges();
             }
         }
 
         public void RemoveTagFromNewsArticle(int articleId, int tagId)
         {
-            try
-            {
-                // Always use a fresh context for relationship operations
-                using (var context = new NewsSystemContext())
-                {
-                    var article = context.NewsArticles
-                        .Include(a => a.Tags)
-                        .FirstOrDefault(a => a.NewsArticleId == articleId);
+            var article = _dbContext.NewsArticles
+                .Include(a => a.Tags)
+                .FirstOrDefault(a => a.NewsArticleId == articleId);
 
-                    if (article != null)
-                    {
-                        var tagToRemove = article.Tags.FirstOrDefault(t => t.TagId == tagId);
-                        if (tagToRemove != null)
-                        {
-                            article.Tags.Remove(tagToRemove);
-                            context.SaveChanges();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
+            if (article != null)
             {
-                Console.WriteLine($"Error removing tag from article: {ex.Message}");
-                throw;
+                var tagToRemove = article.Tags.FirstOrDefault(t => t.TagId == tagId);
+                if (tagToRemove != null)
+                {
+                    article.Tags.Remove(tagToRemove);
+                    _dbContext.SaveChanges();
+                }
             }
         }
     }

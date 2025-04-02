@@ -4090,11 +4090,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Work\\PhienNT_Net1709_A02\\Models\\Models.csproj",
+      "projectUniqueName": "E:\\Work\\PhienNT_Net1709_AS2\\Models\\Models.csproj",
       "projectName": "Models",
-      "projectPath": "E:\\Work\\PhienNT_Net1709_A02\\Models\\Models.csproj",
+      "projectPath": "E:\\Work\\PhienNT_Net1709_AS2\\Models\\Models.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "E:\\Work\\PhienNT_Net1709_A02\\Models\\obj\\",
+      "outputPath": "E:\\Work\\PhienNT_Net1709_AS2\\Models\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -2,16 +2,17 @@
 using Models;
 using Repository;
 using System.Text.Json;
-
 namespace PhienNTBlazor.Services
 {
     public class AuthService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAccountRepo _accountRepo;
-
         public SystemAccount? CurrentUser { get; private set; }
         public bool IsAuthenticated => CurrentUser != null;
+
+        // Add an event for authentication state changes
+        public event EventHandler? AuthenticationStateChanged;
 
         public AuthService(
             IHttpContextAccessor httpContextAccessor,
@@ -39,28 +40,34 @@ namespace PhienNTBlazor.Services
             }
         }
 
+        private void NotifyAuthenticationStateChanged()
+        {
+            AuthenticationStateChanged?.Invoke(this, EventArgs.Empty);
+        }
+
         public bool Login(string email, string password)
         {
             var user = _accountRepo.Login(email, password);
-
             if (user != null)
             {
                 CurrentUser = user;
-
                 // Save user to session
                 var userJson = JsonSerializer.Serialize(user);
                 _httpContextAccessor.HttpContext?.Session.SetString("CurrentUser", userJson);
-
+                NotifyAuthenticationStateChanged();
                 return true;
             }
-
             return false;
         }
 
         public void Logout()
         {
             CurrentUser = null;
-            _httpContextAccessor.HttpContext?.Session.Remove("CurrentUser");
+            if (_httpContextAccessor.HttpContext?.Session != null)
+            {
+                _httpContextAccessor.HttpContext.Session.Clear(); 
+            }
+            NotifyAuthenticationStateChanged();
         }
 
         public bool InitializeAuthenticationState()

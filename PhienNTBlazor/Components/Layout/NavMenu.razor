@@ -1,4 +1,5 @@
 ﻿@using PhienNTBlazor.Services
+@implements IDisposable
 @inject AuthService AuthService
 @inject NavigationManager NavigationManager
 
@@ -54,7 +55,7 @@
             <div class="nav-item px-3 mt-3 border-top pt-3">
                 <div class="d-flex flex-column">
                     <span class="text-light mb-2">@AuthService.CurrentUser?.AccountName</span>
-                    <button class="btn btn-sm btn-outline-light" @onclick="Logout">Logout</button>
+                    <button class="btn btn-sm btn-outline-light" @onclick="Logoutt">Logout</button>
                 </div>
             </div>
         }
@@ -72,28 +73,39 @@
 @code {
     private bool collapseNavMenu = true;
     private bool isAuthenticated = false;
-
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
-    }
+    } 
 
     private bool IsInRole(string role)
     {
         return AuthService.IsInRole(role);
     }
 
-    private void Logout()
+    private async Task Logoutt()
     {
-        AuthService.Logout();
-        NavigationManager.NavigateTo("/login");
+
+
+        NavigationManager.NavigateTo("/login", forceLoad: true);
     }
 
     protected override void OnInitialized()
     {
-        AuthService.InitializeAuthenticationState();
+        AuthService.AuthenticationStateChanged += OnAuthenticationStateChanged;
         isAuthenticated = AuthService.IsAuthenticated;
     }
-}
+
+    private void OnAuthenticationStateChanged(object? sender, EventArgs e)
+    {
+        isAuthenticated = AuthService.IsAuthenticated;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        AuthService.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+    }
+    }

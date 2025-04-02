@@ -1,15 +1,17 @@
 ﻿@using PhienNTBlazor.Services
 @inject AuthService AuthService
+@inject NavigationManager NavigationManager
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">PhienNTBlazor</a>
+        <a class="navbar-brand" href="">News System</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
@@ -17,39 +19,95 @@
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-        @if (AuthService.IsAuthenticated)
+        @if (isAuthenticated)
         {
-            <div class="ms-auto d-flex align-items-center">
-                <span class="me-3 text-light">Welcome, @AuthService.CurrentUser?.AccountName</span>
-                <button class="btn btn-outline-light" @onclick="LogoutAsync">Logout</button>
+            @if (IsInRole("Admin"))
+            {
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="systemaccounts">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Manage Accounts
+                    </NavLink>
+                </div>
+            }
+
+            @if (IsInRole("Admin") || IsInRole("Staff"))
+            {
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="categories">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Categories
+                    </NavLink>
+                </div>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="newsarticles">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> News Articles
+                    </NavLink>
+                </div>
+            }
+
+            <div class="nav-item px-3 mt-3 border-top pt-3">
+                <div class="d-flex flex-column">
+                    <span class="text-light mb-2">@AuthService.CurrentUser?.AccountName</span>
+                    <button class="btn btn-sm btn-outline-light" @onclick="LogoutAsync">Logout</button>
+                </div>
             </div>
         }
         else
         {
-            <a class="btn btn-outline-light ms-auto" href="/login">Login</a>
+            <div class="nav-item px-3 mt-3 border-top pt-3">
+                <NavLink class="btn btn-outline-light" href="/login">
+                    Login
+                </NavLink>
+            </div>
         }
     </nav>
 </div>
 
 @code {
+    private bool collapseNavMenu = true;
+    private bool isAuthenticated = false;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private bool IsInRole(string role)
+    {
+        return AuthService.IsInRole(role);
+    }
+
     private async Task LogoutAsync()
     {
         await AuthService.LogoutAsync();
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await AuthService.InitializeAuthenticationStateAsync();
+        // During initialization we cannot use JavaScript interop, so we'll update after render
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Try to initialize authentication after render
+                await AuthService.InitializeAuthenticationStateAsync();
+                isAuthenticated = AuthService.IsAuthenticated;
+
+                // Force a re-render to update UI based on authentication state
+                StateHasChanged();
+            }
+            catch
+            {
+                // If there's an error, assume not authenticated
+                isAuthenticated = false;
+                StateHasChanged();
+            }
+        }
     }
 }

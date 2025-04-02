@@ -1,59 +1,71 @@
 ﻿@page "/systemaccounts/create"
-@using Microsoft.EntityFrameworkCore
 @using Models
-@inject IDbContextFactory<Models.NewsSystemContext> DbFactory
+@using Repository
+@inject IAccountRepo AccountRepo
 @inject NavigationManager NavigationManager
 
-<PageTitle>Create</PageTitle>
+<PageTitle>Create Account</PageTitle>
 
 <h1>Create</h1>
 
-<h2>SystemAccount</h2>
+<h2>System Account</h2>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <EditForm method="post" Model="SystemAccount" OnValidSubmit="AddSystemAccount" FormName="create" Enhance>
+        <EditForm method="post" Model="Account" OnValidSubmit="CreateAccount" FormName="create" Enhance>
             <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert"/>
+            <ValidationSummary class="text-danger" role="alert" />
+
             <div class="mb-3">
-                <label for="accountname" class="form-label">AccountName:</label> 
-                <InputText id="accountname" @bind-Value="SystemAccount.AccountName" class="form-control" /> 
-                <ValidationMessage For="() => SystemAccount.AccountName" class="text-danger" /> 
-            </div>        
+                <label for="accountname" class="form-label">Name:</label>
+                <InputText id="accountname" @bind-Value="Account.AccountName" class="form-control" />
+                <ValidationMessage For="() => Account.AccountName" class="text-danger" />
+            </div>
+
             <div class="mb-3">
-                <label for="accountemail" class="form-label">AccountEmail:</label> 
-                <InputText id="accountemail" @bind-Value="SystemAccount.AccountEmail" class="form-control" /> 
-                <ValidationMessage For="() => SystemAccount.AccountEmail" class="text-danger" /> 
-            </div>        
+                <label for="accountemail" class="form-label">Email:</label>
+                <InputText id="accountemail" @bind-Value="Account.AccountEmail" class="form-control" />
+                <ValidationMessage For="() => Account.AccountEmail" class="text-danger" />
+            </div>
+
             <div class="mb-3">
-                <label for="accountrole" class="form-label">AccountRole:</label> 
-                <InputText id="accountrole" @bind-Value="SystemAccount.AccountRole" class="form-control" /> 
-                <ValidationMessage For="() => SystemAccount.AccountRole" class="text-danger" /> 
-            </div>        
+                <label for="accountrole" class="form-label">Role:</label>
+                <InputSelect id="accountrole" @bind-Value="Account.AccountRole" class="form-select">
+                    <option value="Admin">Admin</option>
+                    <option value="Staff">Staff</option>
+                    <option value="Lecturer">Lecturer</option>
+                </InputSelect>
+                <ValidationMessage For="() => Account.AccountRole" class="text-danger" />
+            </div>
+
             <div class="mb-3">
-                <label for="accountpassword" class="form-label">AccountPassword:</label> 
-                <InputText id="accountpassword" @bind-Value="SystemAccount.AccountPassword" class="form-control" /> 
-                <ValidationMessage For="() => SystemAccount.AccountPassword" class="text-danger" /> 
-            </div>        
+                <label for="accountpassword" class="form-label">Password:</label>
+                <InputText id="accountpassword" @bind-Value="Account.AccountPassword" type="password" class="form-control" />
+                <ValidationMessage For="() => Account.AccountPassword" class="text-danger" />
+            </div>
+
             <button type="submit" class="btn btn-primary">Create</button>
+            <a href="/systemaccounts" class="btn btn-secondary ms-2">Back to List</a>
         </EditForm>
     </div>
 </div>
 
-<div>
-    <a href="/systemaccounts">Back to List</a>
-</div>
-
 @code {
     [SupplyParameterFromForm]
-    private SystemAccount SystemAccount { get; set; } = new();
+    private SystemAccount Account { get; set; } = new();
 
-    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
-    private async Task AddSystemAccount()
+    private string errorMessage = string.Empty;
+
+    private void CreateAccount()
     {
-        using var context = DbFactory.CreateDbContext();
-        context.SystemAccounts.Add(SystemAccount);
-        await context.SaveChangesAsync();
+        if (AccountRepo.IsEmailExists(Account.AccountEmail))
+        {
+            errorMessage = "Email already exists";
+            return;
+        }
+
+        AccountRepo.AddAccount(Account);
+
         NavigationManager.NavigateTo("/systemaccounts");
     }
 }

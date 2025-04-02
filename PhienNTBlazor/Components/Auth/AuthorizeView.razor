@@ -1,21 +1,27 @@
-﻿// Components/Auth/AuthorizeView.razor
-@using PhienNTBlazor.Services
+﻿@using PhienNTBlazor.Services
 @inject AuthService AuthService
 @inject NavigationManager NavigationManager
 
-@if (AuthService.IsAuthenticated && (Roles == null || Roles.Contains(AuthService.CurrentUser?.AccountRole)))
+@if (initialized)
 {
-    @ChildContent
+    @if (AuthService.IsAuthenticated && (Roles == null || Roles.Contains(AuthService.CurrentUser?.AccountRole)))
+    {
+        @ChildContent
+    }
+    else
+    {
+        @if (RedirectToLogin)
+        {
+            <div class="alert alert-warning">
+                You must be logged in to access this page.
+                <button class="btn btn-sm btn-primary ms-2" @onclick="NavigateToLogin">Login</button>
+            </div>
+        }
+    }
 }
 else
 {
-    @if (RedirectToLogin)
-    {
-        <div class="alert alert-warning">
-            You must be logged in to access this page.
-            <button class="btn btn-sm btn-primary ms-2" @onclick="NavigateToLogin">Login</button>
-        </div>
-    }
+    <div>Loading...</div>
 }
 
 @code {
@@ -28,11 +34,39 @@ else
     [Parameter]
     public bool RedirectToLogin { get; set; } = true;
 
-    protected override void OnInitialized()
+    private bool initialized = false;
+
+    protected override async Task OnInitializedAsync()
     {
-        if (!AuthService.IsAuthenticated && RedirectToLogin)
+        initialized = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
         {
-            NavigateToLogin();
+            try
+            {
+                // Initialize authentication state after rendering
+                await AuthService.InitializeAuthenticationStateAsync();
+                initialized = true;
+
+                if (!AuthService.IsAuthenticated && RedirectToLogin)
+                {
+                    NavigateToLogin();
+                }
+                else
+                {
+                    // Force rerender to reflect authenticated state
+                    StateHasChanged();
+                }
+            }
+            catch
+            {
+                // Handle any exceptions during initialization
+                initialized = true;
+                StateHasChanged();
+            }
         }
     }
 

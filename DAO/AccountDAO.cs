@@ -35,34 +35,49 @@ namespace DAO
 
         public List<SystemAccount> GetAllAccounts()
         {
-            return _dbContext.SystemAccounts.ToList();
+            return _dbContext.SystemAccounts.AsNoTracking().ToList();
+
         }
 
         public SystemAccount GetAccountById(int id)
         {
-            return _dbContext.SystemAccounts.Find(id);
+            return _dbContext.SystemAccounts.AsNoTracking().FirstOrDefault(a => a.AccountId == id);
+
         }
 
         public SystemAccount GetAccountByEmail(string email)
         {
-            return _dbContext.SystemAccounts.FirstOrDefault(a => a.AccountEmail == email);
+            return _dbContext.SystemAccounts
+        .AsNoTracking()
+        .FirstOrDefault(a => a.AccountEmail == email);
         }
 
         public List<SystemAccount> GetAccountsByRole(string role)
         {
-            return _dbContext.SystemAccounts.Where(a => a.AccountRole == role).ToList();
+            return _dbContext.SystemAccounts
+        .AsNoTracking()
+        .Where(a => a.AccountRole == role)
+        .ToList();
         }
 
         public void AddAccount(SystemAccount account)
         {
+            account.NewsArticleCreatedBies = new List<NewsArticle>();
+            account.NewsArticleUpdatedBies = new List<NewsArticle>();
+
             _dbContext.SystemAccounts.Add(account);
             _dbContext.SaveChanges();
         }
 
         public void UpdateAccount(SystemAccount account)
         {
-            _dbContext.Entry(account).State = EntityState.Modified;
-            _dbContext.SaveChanges();
+            var existingAccount = _dbContext.SystemAccounts.Find(account.AccountId);
+
+            if (existingAccount != null)
+            {
+                _dbContext.Entry(existingAccount).CurrentValues.SetValues(account);
+                _dbContext.SaveChanges();
+            }
         }
 
         public void DeleteAccount(int id)
@@ -107,21 +122,21 @@ namespace DAO
         public List<NewsArticle> GetArticlesCreatedByAccount(int accountId)
         {
             return _dbContext.NewsArticles
-                .Include(a => a.Category)
-                .Include(a => a.Tags)
-                .Where(a => a.CreatedById == accountId)
-                .OrderByDescending(a => a.CreatedDate)
-                .ToList();
+        .AsNoTracking()
+        .Include(a => a.Category)
+        .Where(a => a.CreatedById == accountId)
+        .OrderByDescending(a => a.CreatedDate)
+        .ToList();
         }
 
         public List<NewsArticle> GetArticlesUpdatedByAccount(int accountId)
         {
             return _dbContext.NewsArticles
-                .Include(a => a.Category)
-                .Include(a => a.Tags)
-                .Where(a => a.UpdatedById == accountId)
-                .OrderByDescending(a => a.ModifiedDate)
-                .ToList();
+        .AsNoTracking()
+        .Include(a => a.Category)
+        .Where(a => a.UpdatedById == accountId)
+        .OrderByDescending(a => a.ModifiedDate)
+        .ToList();
         }
     }
 }

@@ -80,13 +80,13 @@
                 switch (user.AccountRole)
                 {
                     case "Admin":
-                        NavigationManager.NavigateTo("/admin");
+                        NavigationManager.NavigateTo("/systemaccounts");
                         break;
                     case "Staff":
-                        NavigationManager.NavigateTo("/staff");
+                        NavigationManager.NavigateTo("/newsarticles");
                         break;
                     default:
-                        NavigationManager.NavigateTo("/");
+                        NavigationManager.NavigateTo("/newsarticles");
                         break;
                 }
             }

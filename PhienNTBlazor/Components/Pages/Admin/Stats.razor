@@ -1,0 +1,499 @@
+﻿@page "/admin/reports"
+@using Models
+@using Repository
+@using System.Linq
+@using PhienNTBlazor.Services
+@inject INewsArticleRepo NewsArticleRepo
+@inject ICategoryRepo CategoryRepo
+@inject IAccountRepo AccountRepo
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+
+<PageTitle>News Reports Statistics</PageTitle>
+
+@if (!AuthService.IsAuthenticated || !AuthService.IsInRole("Admin"))
+{
+    <div class="alert alert-danger">
+        Access denied. Only administrators can view this page.
+    </div>
+    <button class="btn btn-primary" @onclick="RedirectToHome">Return to Home</button>
+}
+else
+{
+    <h1>News Reports Statistics</h1>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Filter Reports</h3>
+        </div>
+        <div class="card-body">
+            <EditForm Model="@filterModel" OnValidSubmit="GenerateReport" FormName="reportFilterForm">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="startDate" class="form-label">Start Date:</label>
+                            <InputDate id="startDate" @bind-Value="filterModel.StartDate" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="endDate" class="form-label">End Date:</label>
+                            <InputDate id="endDate" @bind-Value="filterModel.EndDate" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary mb-3">Generate Report</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+    @if (isReportGenerated)
+    {
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3>Articles Summary</h3>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-8">Total Articles:</dt>
+                            <dd class="col-sm-4">@filteredArticles.Count()</dd>
+
+                            <dt class="col-sm-8">Published Articles:</dt>
+                            <dd class="col-sm-4">@filteredArticles.Count(a => a.NewsStatus == "Published")</dd>
+
+                            <dt class="col-sm-8">Draft Articles:</dt>
+                            <dd class="col-sm-4">@filteredArticles.Count(a => a.NewsStatus == "Draft")</dd>
+
+                            <dt class="col-sm-8">Archived Articles:</dt>
+                            <dd class="col-sm-4">@filteredArticles.Count(a => a.NewsStatus == "Archived")</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3>Author Statistics</h3>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-8">Total Authors:</dt>
+                            <dd class="col-sm-4">@authorCounts.Count</dd>
+
+                            <dt class="col-sm-8">Most Active Author:</dt>
+                            <dd class="col-sm-4">
+                                @(authorCounts.Any() ?
+                                    authorCounts.OrderByDescending(a => a.Value).First().Key :
+                                    "None")
+                            </dd>
+
+                            <dt class="col-sm-8">Average Articles per Author:</dt>
+                            <dd class="col-sm-4">
+                                @(authorCounts.Any() ?
+                                    Math.Round(authorCounts.Values.Average(), 1).ToString() :
+                                    "0")
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Articles by Category</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Total Articles</th>
+                            <th>Published</th>
+                            <th>Draft</th>
+                            <th>Archived</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var category in categoryStats.OrderByDescending(c => c.TotalArticles))
+                        {
+                            <tr>
+                                <td>@category.CategoryName</td>
+                                <td>@category.TotalArticles</td>
+                                <td>@category.PublishedArticles</td>
+                                <td>@category.DraftArticles</td>
+                                <td>@category.ArchivedArticles</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Article Creation Timeline</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Total Articles</th>
+                            <th>Published</th>
+                            <th>Draft</th>
+                            <th>Archived</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var month in monthlyStats.OrderByDescending(m => m.Month))
+                        {
+                            <tr>
+                                <td>@month.Month.ToString("MMM yyyy")</td>
+                                <td>@month.TotalArticles</td>
+                                <td>@month.PublishedArticles</td>
+                                <td>@month.DraftArticles</td>
+                                <td>@month.ArchivedArticles</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Top Articles by Author</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Author</th>
+                            <th>Articles</th>
+                            <th>Latest Article</th>
+                            <th>Published</th>
+                            <th>Draft</th>
+                            <th>Archived</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var author in authorStats.OrderByDescending(a => a.TotalArticles).Take(10))
+                        {
+                            <tr>
+                                <td>@author.AuthorName</td>
+                                <td>@author.TotalArticles</td>
+                                <td>@(author.LatestArticleDate?.ToString("dd MMM yyyy") ?? "N/A")</td>
+                                <td>@author.PublishedArticles</td>
+                                <td>@author.DraftArticles</td>
+                                <td>@author.ArchivedArticles</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Articles Within Period</h3>
+                <div>
+                    <select class="form-select" @bind="sortOption">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="category">By Category</option>
+                        <option value="status">By Status</option>
+                        <option value="author">By Author</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Author</th>
+                            <th>Created Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var article in GetSortedArticles())
+                        {
+                            <tr>
+                                <td>
+                                    <a href="@($"/newsarticles/details?newsarticleid={article.NewsArticleId}")">
+                                        @article.NewsTitle
+                                    </a>
+                                </td>
+                                <td>@GetCategoryName(article.CategoryId)</td>
+                                <td>@GetAuthorName(article.CreatedById)</td>
+                                <td>@article.CreatedDate.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    <span class="badge @GetStatusBadgeClass(article.NewsStatus)">
+                                        @article.NewsStatus
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private class FilterModel
+    {
+        public DateTime StartDate { get; set; } = DateTime.Now.AddMonths(-1);
+        public DateTime EndDate { get; set; } = DateTime.Now;
+    }
+
+    private FilterModel filterModel = new FilterModel();
+    private bool isReportGenerated = false;
+    private IEnumerable<NewsArticle> filteredArticles = new List<NewsArticle>();
+    private Dictionary<string, int> authorCounts = new Dictionary<string, int>();
+    private List<CategoryStat> categoryStats = new List<CategoryStat>();
+    private List<MonthlyStat> monthlyStats = new List<MonthlyStat>();
+    private List<AuthorStat> authorStats = new List<AuthorStat>();
+    private string sortOption = "newest";
+
+    // Cache for author and category names
+    private Dictionary<int, string> categoryNames = new Dictionary<int, string>();
+    private Dictionary<int, string> authorNames = new Dictionary<int, string>();
+
+    protected override void OnInitialized()
+    {
+        // Pre-load categories and authors for faster lookups
+        foreach (var category in CategoryRepo.GetAllCategories())
+        {
+            categoryNames[category.CategoryId] = category.CategoryName;
+        }
+
+        foreach (var account in AccountRepo.GetAllAccounts())
+        {
+            authorNames[account.AccountId] = account.AccountName;
+        }
+    }
+
+    private void RedirectToHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    private void GenerateReport()
+    {
+        // Make sure dates are in correct order
+        if (filterModel.StartDate > filterModel.EndDate)
+        {
+            var temp = filterModel.StartDate;
+            filterModel.StartDate = filterModel.EndDate;
+            filterModel.EndDate = temp;
+        }
+
+        // Set the end date to the end of the day for inclusive filtering
+        var adjustedEndDate = filterModel.EndDate.Date.AddDays(1).AddSeconds(-1);
+
+        try
+        {
+            // Get articles within the date range
+            filteredArticles = NewsArticleRepo.GetNewsArticlesByDate(filterModel.StartDate, adjustedEndDate)
+                .OrderByDescending(a => a.CreatedDate)
+                .ToList(); // Force evaluation to catch any errors
+
+            // Generate author statistics
+            GenerateAuthorStatistics();
+
+            // Generate category statistics
+            GenerateCategoryStatistics();
+
+            // Generate monthly statistics
+            GenerateMonthlyStatistics();
+
+            isReportGenerated = true;
+        }
+        catch (Exception ex)
+        {
+            // In a real application, you'd log this error
+            Console.WriteLine($"Error generating report: {ex.Message}");
+            isReportGenerated = false;
+        }
+    }
+
+    private void GenerateAuthorStatistics()
+    {
+        authorCounts = new Dictionary<string, int>();
+        authorStats = new List<AuthorStat>();
+
+        // Group articles by created by ID
+        var groupedByAuthor = filteredArticles.GroupBy(a => a.CreatedById);
+
+        foreach (var group in groupedByAuthor)
+        {
+            var authorId = group.Key;
+            var authorName = GetAuthorName(authorId);
+
+            // Add to author counts dictionary
+            authorCounts[authorName] = group.Count();
+
+            // Create author stat
+            var authorStat = new AuthorStat
+                {
+                    AuthorId = authorId,
+                    AuthorName = authorName,
+                    TotalArticles = group.Count(),
+                    LatestArticleDate = group.Max(a => a.CreatedDate),
+                    PublishedArticles = group.Count(a => a.NewsStatus == "Published"),
+                    DraftArticles = group.Count(a => a.NewsStatus == "Draft"),
+                    ArchivedArticles = group.Count(a => a.NewsStatus == "Archived")
+                };
+
+            authorStats.Add(authorStat);
+        }
+    }
+
+    private void GenerateCategoryStatistics()
+    {
+        categoryStats = new List<CategoryStat>();
+
+        // Group articles by category ID
+        var groupedByCategory = filteredArticles.GroupBy(a => a.CategoryId);
+
+        foreach (var group in groupedByCategory)
+        {
+            var categoryId = group.Key;
+            var categoryName = GetCategoryName(categoryId);
+
+            // Create category stat
+            var categoryStat = new CategoryStat
+                {
+                    CategoryId = categoryId,
+                    CategoryName = categoryName,
+                    TotalArticles = group.Count(),
+                    PublishedArticles = group.Count(a => a.NewsStatus == "Published"),
+                    DraftArticles = group.Count(a => a.NewsStatus == "Draft"),
+                    ArchivedArticles = group.Count(a => a.NewsStatus == "Archived")
+                };
+
+            categoryStats.Add(categoryStat);
+        }
+    }
+
+    private void GenerateMonthlyStatistics()
+    {
+        monthlyStats = new List<MonthlyStat>();
+
+        // Group articles by month
+        var groupedByMonth = filteredArticles
+            .GroupBy(a => new DateTime(a.CreatedDate.Year, a.CreatedDate.Month, 1));
+
+        foreach (var group in groupedByMonth)
+        {
+            var month = group.Key;
+
+            // Create monthly stat
+            var monthlyStat = new MonthlyStat
+                {
+                    Month = month,
+                    TotalArticles = group.Count(),
+                    PublishedArticles = group.Count(a => a.NewsStatus == "Published"),
+                    DraftArticles = group.Count(a => a.NewsStatus == "Draft"),
+                    ArchivedArticles = group.Count(a => a.NewsStatus == "Archived")
+                };
+
+            monthlyStats.Add(monthlyStat);
+        }
+    }
+
+    private IEnumerable<NewsArticle> GetSortedArticles()
+    {
+        return sortOption switch
+        {
+            "oldest" => filteredArticles.OrderBy(a => a.CreatedDate),
+            "category" => filteredArticles.OrderBy(a => GetCategoryName(a.CategoryId)),
+            "status" => filteredArticles.OrderBy(a => a.NewsStatus),
+            "author" => filteredArticles.OrderBy(a => GetAuthorName(a.CreatedById)),
+            _ => filteredArticles.OrderByDescending(a => a.CreatedDate) // "newest" is the default
+        };
+    }
+
+    private string GetCategoryName(int categoryId)
+    {
+        if (categoryNames.TryGetValue(categoryId, out var name))
+        {
+            return name;
+        }
+
+        var category = CategoryRepo.GetCategoryById(categoryId);
+        var categoryName = category?.CategoryName ?? "Unknown";
+
+        // Cache the result
+        categoryNames[categoryId] = categoryName;
+
+        return categoryName;
+    }
+
+    private string GetAuthorName(int authorId)
+    {
+        if (authorNames.TryGetValue(authorId, out var name))
+        {
+            return name;
+        }
+
+        var author = AccountRepo.GetAccountById(authorId);
+        var authorName = author?.AccountName ?? "Unknown";
+
+        // Cache the result
+        authorNames[authorId] = authorName;
+
+        return authorName;
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Published" => "bg-success",
+            "Draft" => "bg-warning",
+            "Archived" => "bg-secondary",
+            _ => "bg-info"
+        };
+    }
+
+    private class CategoryStat
+    {
+        public int CategoryId { get; set; }
+        public string CategoryName { get; set; } = "";
+        public int TotalArticles { get; set; }
+        public int PublishedArticles { get; set; }
+        public int DraftArticles { get; set; }
+        public int ArchivedArticles { get; set; }
+    }
+
+    private class MonthlyStat
+    {
+        public DateTime Month { get; set; }
+        public int TotalArticles { get; set; }
+        public int PublishedArticles { get; set; }
+        public int DraftArticles { get; set; }
+        public int ArchivedArticles { get; set; }
+    }
+
+    private class AuthorStat
+    {
+        public int AuthorId { get; set; }
+        public string AuthorName { get; set; } = "";
+        public int TotalArticles { get; set; }
+        public DateTime? LatestArticleDate { get; set; }
+        public int PublishedArticles { get; set; }
+        public int DraftArticles { get; set; }
+        public int ArchivedArticles { get; set; }
+    }
+}

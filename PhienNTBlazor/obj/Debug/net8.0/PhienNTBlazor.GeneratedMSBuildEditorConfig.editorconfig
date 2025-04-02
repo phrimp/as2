@@ -36,6 +36,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBdXRoXEF1dGhvcml6ZVZpZXcucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/Work/PhienNT_Net1709_AS2/PhienNTBlazor/Components/Pages/Admin/Stats.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxTdGF0cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/Work/PhienNT_Net1709_AS2/PhienNTBlazor/Components/Pages/Admin/SystemAccountPages/Create.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxTeXN0ZW1BY2NvdW50UGFnZXNcQ3JlYXRlLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 

@@ -1,0 +1,105 @@
+﻿@page "/login"
+@using Models
+@using Repository
+@using PhienNTBlazor.Services
+@using System.ComponentModel.DataAnnotations
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Login</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-center">Login</h3>
+            </div>
+            <div class="card-body">
+                <EditForm Model="loginModel" OnValidSubmit="HandleLogin" FormName="login">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" />
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger">
+                            @errorMessage
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email:</label>
+                        <InputText id="email" @bind-Value="loginModel.Email" class="form-control" />
+                        <ValidationMessage For="() => loginModel.Email" class="text-danger" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password:</label>
+                        <InputText id="password" type="password" @bind-Value="loginModel.Password" class="form-control" />
+                        <ValidationMessage For="() => loginModel.Password" class="text-danger" />
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginModel loginModel = new();
+    private string errorMessage = string.Empty;
+    private string? returnUrl;
+
+    protected override void OnInitialized()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var param))
+        {
+            returnUrl = param.First();
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        var success = await AuthService.LoginAsync(loginModel.Email, loginModel.Password);
+
+        if (success)
+        {
+            var user = AuthService.CurrentUser;
+
+            // Redirect based on role or return URL
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                NavigationManager.NavigateTo(returnUrl);
+            }
+            else
+            {
+                switch (user.AccountRole)
+                {
+                    case "Admin":
+                        NavigationManager.NavigateTo("/admin");
+                        break;
+                    case "Staff":
+                        NavigationManager.NavigateTo("/staff");
+                        break;
+                    default:
+                        NavigationManager.NavigateTo("/");
+                        break;
+                }
+            }
+        }
+        else
+        {
+            errorMessage = "Invalid email or password";
+        }
+    }
+
+    public class LoginModel
+    {
+        public string Email { get; set; } = string.Empty;
+
+        public string Password { get; set; } = string.Empty;
+    }
+}

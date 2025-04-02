@@ -1,4 +1,7 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using PhienNTBlazor.Services
+@inject AuthService AuthService
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">PhienNTBlazor</a>
     </div>
@@ -25,6 +28,28 @@
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
             </NavLink>
         </div>
+        @if (AuthService.IsAuthenticated)
+        {
+            <div class="ms-auto d-flex align-items-center">
+                <span class="me-3 text-light">Welcome, @AuthService.CurrentUser?.AccountName</span>
+                <button class="btn btn-outline-light" @onclick="LogoutAsync">Logout</button>
+            </div>
+        }
+        else
+        {
+            <a class="btn btn-outline-light ms-auto" href="/login">Login</a>
+        }
     </nav>
 </div>
 
+@code {
+    private async Task LogoutAsync()
+    {
+        await AuthService.LogoutAsync();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthService.InitializeAuthenticationStateAsync();
+    }
+}

@@ -1,10 +1,8 @@
 ﻿@page "/newsarticles"
-@using Microsoft.EntityFrameworkCore
-@using Microsoft.AspNetCore.Components.QuickGrid
 @using Models
-@using Models
+@using Repository
 @implements IAsyncDisposable
-@inject IDbContextFactory<Models.NewsSystemContext> DbFactory
+@inject INewsArticleRepo NewsArticleRepo
 
 <PageTitle>Index</PageTitle>
 
@@ -14,32 +12,48 @@
     <a href="newsarticles/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="context.NewsArticles">
-    <PropertyColumn Property="newsarticle => newsarticle.NewsTitle" />
-    <PropertyColumn Property="newsarticle => newsarticle.Headline" />
-    <PropertyColumn Property="newsarticle => newsarticle.CreatedDate" />
-    <PropertyColumn Property="newsarticle => newsarticle.NewsContent" />
-    <PropertyColumn Property="newsarticle => newsarticle.NewsSource" />
-    <PropertyColumn Property="newsarticle => newsarticle.CategoryId" />
-    <PropertyColumn Property="newsarticle => newsarticle.NewsStatus" />
-    <PropertyColumn Property="newsarticle => newsarticle.CreatedById" />
-    <PropertyColumn Property="newsarticle => newsarticle.UpdatedById" />
-    <PropertyColumn Property="newsarticle => newsarticle.ModifiedDate" />
-
-    <TemplateColumn Context="newsarticle">
-        <a href="@($"newsarticles/edit?newsarticleid={newsarticle.NewsArticleId}")">Edit</a> |
-        <a href="@($"newsarticles/details?newsarticleid={newsarticle.NewsArticleId}")">Details</a> |
-        <a href="@($"newsarticles/delete?newsarticleid={newsarticle.NewsArticleId}")">Delete</a>
-    </TemplateColumn>
-</QuickGrid>
+<table class="table">
+    <thead>
+        <tr>
+            <th>NewsTitle</th>
+            <th>Headline</th>
+            <th>CreatedDate</th>
+            <th>NewsSource</th>
+            <th>CategoryId</th>
+            <th>NewsStatus</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var article in newsArticles)
+        {
+            <tr>
+                <td>@article.NewsTitle</td>
+                <td>@article.Headline</td>
+                <td>@article.CreatedDate</td>
+                <td>@article.NewsSource</td>
+                <td>@article.CategoryId</td>
+                <td>@article.NewsStatus</td>
+                <td>
+                    <a href="@($"newsarticles/edit?newsarticleid={article.NewsArticleId}")">Edit</a> |
+                    <a href="@($"newsarticles/details?newsarticleid={article.NewsArticleId}")">Details</a> |
+                    <a href="@($"newsarticles/delete?newsarticleid={article.NewsArticleId}")">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 
 @code {
-    private NewsSystemContext context = default!;
+    private IEnumerable<NewsArticle> newsArticles = new List<NewsArticle>();
 
     protected override void OnInitialized()
     {
-        context = DbFactory.CreateDbContext();
+        newsArticles = NewsArticleRepo.GetAllNewsArticles();
     }
 
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+    public ValueTask DisposeAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
 }

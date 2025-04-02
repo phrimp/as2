@@ -1,0 +1,43 @@
+﻿// Components/Auth/AuthorizeView.razor
+@using PhienNTBlazor.Services
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+
+@if (AuthService.IsAuthenticated && (Roles == null || Roles.Contains(AuthService.CurrentUser?.AccountRole)))
+{
+    @ChildContent
+}
+else
+{
+    @if (RedirectToLogin)
+    {
+        <div class="alert alert-warning">
+            You must be logged in to access this page.
+            <button class="btn btn-sm btn-primary ms-2" @onclick="NavigateToLogin">Login</button>
+        </div>
+    }
+}
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string[]? Roles { get; set; }
+
+    [Parameter]
+    public bool RedirectToLogin { get; set; } = true;
+
+    protected override void OnInitialized()
+    {
+        if (!AuthService.IsAuthenticated && RedirectToLogin)
+        {
+            NavigateToLogin();
+        }
+    }
+
+    private void NavigateToLogin()
+    {
+        NavigationManager.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}");
+    }
+}

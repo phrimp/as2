@@ -48,7 +48,6 @@ else
             try
             {
                 // Initialize authentication state after rendering
-                await AuthService.InitializeAuthenticationStateAsync();
                 initialized = true;
 
                 if (!AuthService.IsAuthenticated && RedirectToLogin)

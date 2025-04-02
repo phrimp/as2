@@ -48,7 +48,7 @@
             <div class="nav-item px-3 mt-3 border-top pt-3">
                 <div class="d-flex flex-column">
                     <span class="text-light mb-2">@AuthService.CurrentUser?.AccountName</span>
-                    <button class="btn btn-sm btn-outline-light" @onclick="LogoutAsync">Logout</button>
+                    <button class="btn btn-sm btn-outline-light" @onclick="Logout">Logout</button>
                 </div>
             </div>
         }
@@ -79,35 +79,15 @@
         return AuthService.IsInRole(role);
     }
 
-    private async Task LogoutAsync()
+    private void Logout()
     {
-        await AuthService.LogoutAsync();
+        AuthService.Logout();
+        NavigationManager.NavigateTo("/login");
     }
 
     protected override void OnInitialized()
     {
-        // During initialization we cannot use JavaScript interop, so we'll update after render
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            try
-            {
-                // Try to initialize authentication after render
-                await AuthService.InitializeAuthenticationStateAsync();
-                isAuthenticated = AuthService.IsAuthenticated;
-
-                // Force a re-render to update UI based on authentication state
-                StateHasChanged();
-            }
-            catch
-            {
-                // If there's an error, assume not authenticated
-                isAuthenticated = false;
-                StateHasChanged();
-            }
-        }
+        AuthService.InitializeAuthenticationState();
+        isAuthenticated = AuthService.IsAuthenticated;
     }
 }

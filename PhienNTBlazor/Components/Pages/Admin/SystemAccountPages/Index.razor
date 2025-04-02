@@ -1,47 +1,85 @@
 ﻿@page "/systemaccounts"
 @using Models
 @using Repository
+@using PhienNTBlazor.Services
 @inject IAccountRepo AccountRepo
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
 
 <PageTitle>System Accounts</PageTitle>
 
-<h1>System Accounts</h1>
+<!-- Simple debug message -->
+<div class="alert alert-info mb-3">
+    Debug: IsAuthenticated: @AuthService.IsAuthenticated,
+    Role: @(AuthService.CurrentUser?.AccountRole ?? "none")
+</div>
 
-<p>
-    <a href="systemaccounts/create">Create New</a>
-</p>
+@if (!AuthService.IsAuthenticated || !AuthService.IsInRole("Admin"))
+{
+    <div class="alert alert-danger">
+        Access denied. Only administrators can view this page.
+    </div>
+    <button class="btn btn-primary" @onclick="RedirectToHome">Return to Home</button>
+}
+else
+{
+    <h1>System Accounts</h1>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var account in accounts)
-        {
+    <p>
+        <a href="systemaccounts/create">Create New</a>
+    </p>
+
+    <table class="table">
+        <thead>
             <tr>
-                <td>@account.AccountName</td>
-                <td>@account.AccountEmail</td>
-                <td>@account.AccountRole</td>
-                <td>
-                    <a href="@($"systemaccounts/edit?accountid={account.AccountId}")">Edit</a> |
-                    <a href="@($"systemaccounts/details?accountid={account.AccountId}")">Details</a> |
-                    <a href="@($"systemaccounts/delete?accountid={account.AccountId}")">Delete</a>
-                </td>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var account in accounts)
+            {
+                <tr>
+                    <td>@account.AccountName</td>
+                    <td>@account.AccountEmail</td>
+                    <td>@account.AccountRole</td>
+                    <td>
+                        <a href="@($"systemaccounts/edit?accountid={account.AccountId}")">Edit</a> |
+                        <a href="@($"systemaccounts/details?accountid={account.AccountId}")">Details</a> |
+                        <a href="@($"systemaccounts/delete?accountid={account.AccountId}")">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @code {
     private IEnumerable<SystemAccount> accounts = new List<SystemAccount>();
 
     protected override void OnInitialized()
     {
-        accounts = AccountRepo.GetAllAccounts();
+        // Check if user is Admin before loading data
+        if (AuthService.IsAuthenticated && AuthService.IsInRole("Admin"))
+        {
+            accounts = AccountRepo.GetAllAccounts();
+        }
+        else if (AuthService.IsAuthenticated)
+        {
+            // If authenticated but not admin, redirect
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            // If not authenticated, redirect to login
+            NavigationManager.NavigateTo("/login?returnUrl=/systemaccounts");
+        }
+    }
+
+    private void RedirectToHome()
+    {
+        NavigationManager.NavigateTo("/");
     }
 }

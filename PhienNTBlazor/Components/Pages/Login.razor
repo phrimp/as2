@@ -67,10 +67,11 @@
     {
         Console.WriteLine($"Login attempt with email: {loginModel.Email}, password: {loginModel.Password}");
 
-        var success = await AuthService.LoginAsync(loginModel.Email, loginModel.Password);
+        var success = AuthService.Login(loginModel.Email, loginModel.Password);
         if (success)
         {
             var user = AuthService.CurrentUser;
+            Console.WriteLine("Current user:", user.AccountEmail);
             if (!string.IsNullOrEmpty(returnUrl))
             {
                 NavigationManager.NavigateTo(returnUrl);

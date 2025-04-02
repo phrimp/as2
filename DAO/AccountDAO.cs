@@ -30,7 +30,9 @@ namespace DAO
 
         public SystemAccount GetAccount(String email, String password)
         {
-            return _dbContext.SystemAccounts.FirstOrDefault(m => m.AccountEmail == email && m.AccountPassword == password);
+            var account = _dbContext.SystemAccounts.FirstOrDefault(m => m.AccountEmail == email && m.AccountPassword == password);
+            Console.WriteLine($"Account found: {(account == null ? "NULL" : account.AccountEmail)}");
+            return account;
         }
 
         public List<SystemAccount> GetAllAccounts()

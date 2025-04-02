@@ -1,10 +1,10 @@
 ﻿@page "/categories/delete"
-@using Microsoft.EntityFrameworkCore
 @using Models
-@inject IDbContextFactory<Models.NewsSystemContext> DbFactory
+@using Repository
+@inject ICategoryRepo CategoryRepo
 @inject NavigationManager NavigationManager
 
-<PageTitle>Delete</PageTitle>
+<PageTitle>Delete Category</PageTitle>
 
 <h1>Delete</h1>
 
@@ -16,7 +16,8 @@
     {
         <p><em>Loading...</em></p>
     }
-    else {
+    else
+    {
         <dl class="row">
             <dt class="col-sm-2">CategoryName</dt>
             <dd class="col-sm-10">@category.CategoryName</dd>
@@ -33,35 +34,51 @@
             <dt class="col-sm-2">IsActive</dt>
             <dd class="col-sm-10">@category.IsActive</dd>
         </dl>
-        <EditForm method="post" Model="category" OnValidSubmit="DeleteCategory" FormName="delete" Enhance>
-            <button type="submit" class="btn btn-danger" disabled="@(category is null)">Delete</button> |
+
+        @if (isUsedInArticles)
+        {
+            <div class="alert alert-danger">
+                <p>This category cannot be deleted because it is used by one or more news articles.</p>
+            </div>
             <a href="/categories">Back to List</a>
-        </EditForm>
+        }
+        else
+        {
+            <EditForm method="post" Model="category" OnValidSubmit="DeleteCategory" FormName="delete" Enhance>
+                <button type="submit" class="btn btn-danger" disabled="@(category is null)">Delete</button> |
+                <a href="/categories">Back to List</a>
+            </EditForm>
+        }
     }
 </div>
 
 @code {
     private Category? category;
+    private bool isUsedInArticles = false;
 
     [SupplyParameterFromQuery]
     private int CategoryId { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        using var context = DbFactory.CreateDbContext();
-        category = await context.Categories.FirstOrDefaultAsync(m => m.CategoryId == CategoryId);
+        category = CategoryRepo.GetCategoryById(CategoryId);
 
         if (category is null)
         {
             NavigationManager.NavigateTo("notfound");
         }
+        else
+        {
+            isUsedInArticles = CategoryRepo.IsCategoryUsedInArticles(CategoryId);
+        }
     }
 
     private async Task DeleteCategory()
     {
-        using var context = DbFactory.CreateDbContext();
-        context.Categories.Remove(category!);
-        await context.SaveChangesAsync();
-        NavigationManager.NavigateTo("/categories");
+        if (!isUsedInArticles)
+        {
+            CategoryRepo.DeleteCategory(CategoryId);
+            NavigationManager.NavigateTo("/categories");
+        }
     }
 }

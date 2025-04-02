@@ -1,45 +1,37 @@
 ﻿@page "/newsarticles"
-@using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Models
-@using Models
-@implements IAsyncDisposable
-@inject IDbContextFactory<Models.NewsSystemContext> DbFactory
+@using Repository
+@inject INewsArticleRepo NewsArticleRepo
 
-<PageTitle>Index</PageTitle>
+<PageTitle>News Articles</PageTitle>
 
-<h1>Index</h1>
+<h1>News Articles</h1>
 
 <p>
     <a href="newsarticles/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="context.NewsArticles">
-    <PropertyColumn Property="newsarticle => newsarticle.NewsTitle" />
-    <PropertyColumn Property="newsarticle => newsarticle.Headline" />
-    <PropertyColumn Property="newsarticle => newsarticle.CreatedDate" />
-    <PropertyColumn Property="newsarticle => newsarticle.NewsContent" />
-    <PropertyColumn Property="newsarticle => newsarticle.NewsSource" />
-    <PropertyColumn Property="newsarticle => newsarticle.CategoryId" />
-    <PropertyColumn Property="newsarticle => newsarticle.NewsStatus" />
-    <PropertyColumn Property="newsarticle => newsarticle.CreatedById" />
-    <PropertyColumn Property="newsarticle => newsarticle.UpdatedById" />
-    <PropertyColumn Property="newsarticle => newsarticle.ModifiedDate" />
+<QuickGrid Items="@(newsArticles.AsQueryable())">
+    <PropertyColumn Property="article => article.NewsTitle" Title="Title" />
+    <PropertyColumn Property="article => article.Headline" Title="Headline" />
+    <PropertyColumn Property="article => article.CreatedDate" Title="Created Date" Format="MM/dd/yyyy" />
+    <PropertyColumn Property="article => article.NewsStatus" Title="Status" />
+    <PropertyColumn Property="article => article.Category.CategoryName" Title="Category" />
 
-    <TemplateColumn Context="newsarticle">
-        <a href="@($"newsarticles/edit?newsarticleid={newsarticle.NewsArticleId}")">Edit</a> |
-        <a href="@($"newsarticles/details?newsarticleid={newsarticle.NewsArticleId}")">Details</a> |
-        <a href="@($"newsarticles/delete?newsarticleid={newsarticle.NewsArticleId}")">Delete</a>
+    <TemplateColumn Title="Actions">
+        <a href="@($"newsarticles/edit?newsarticleid={context.NewsArticleId}")">Edit</a> |
+        <a href="@($"newsarticles/details?newsarticleid={context.NewsArticleId}")">Details</a> |
+        <a href="@($"newsarticles/delete?newsarticleid={context.NewsArticleId}")">Delete</a>
     </TemplateColumn>
 </QuickGrid>
 
 @code {
-    private NewsSystemContext context = default!;
+    private IEnumerable<NewsArticle> newsArticles = Array.Empty<NewsArticle>();
 
     protected override void OnInitialized()
     {
-        context = DbFactory.CreateDbContext();
+        // Get all news articles from the repository
+        newsArticles = NewsArticleRepo.GetAllNewsArticles();
     }
-
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }

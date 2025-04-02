@@ -1,39 +1,35 @@
 ﻿@page "/categories"
-@using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Models
-@using Models
-@implements IAsyncDisposable
-@inject IDbContextFactory<Models.NewsSystemContext> DbFactory
+@using Repository
+@inject ICategoryRepo CategoryRepo
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Categories</PageTitle>
 
-<h1>Index</h1>
+<h1>Categories</h1>
 
 <p>
     <a href="categories/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="context.Categories">
-    <PropertyColumn Property="category => category.CategoryName" />
-    <PropertyColumn Property="category => category.CategoryDesciption" />
-    <PropertyColumn Property="category => category.ParentCategoryId" />
-    <PropertyColumn Property="category => category.IsActive" />
+<QuickGrid Items="@(categories.AsQueryable())">
+    <PropertyColumn Property="category => category.CategoryName" Title="Category Name" />
+    <PropertyColumn Property="category => category.CategoryDesciption" Title="Description" />
+    <PropertyColumn Property="category => category.ParentCategoryId" Title="Parent ID" />
+    <PropertyColumn Property="category => category.IsActive" Title="Active" />
 
-    <TemplateColumn Context="category">
-        <a href="@($"categories/edit?categoryid={category.CategoryId}")">Edit</a> |
-        <a href="@($"categories/details?categoryid={category.CategoryId}")">Details</a> |
-        <a href="@($"categories/delete?categoryid={category.CategoryId}")">Delete</a>
+    <TemplateColumn Title="Actions">
+        <a href="@($"categories/edit?categoryid={context.CategoryId}")">Edit</a> |
+        <a href="@($"categories/details?categoryid={context.CategoryId}")">Details</a> |
+        <a href="@($"categories/delete?categoryid={context.CategoryId}")">Delete</a>
     </TemplateColumn>
 </QuickGrid>
 
 @code {
-    private NewsSystemContext context = default!;
+    private IEnumerable<Category> categories = Array.Empty<Category>();
 
     protected override void OnInitialized()
     {
-        context = DbFactory.CreateDbContext();
+        categories = CategoryRepo.GetAllCategories();
     }
-
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }

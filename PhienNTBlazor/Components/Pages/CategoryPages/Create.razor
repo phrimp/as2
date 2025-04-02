@@ -1,10 +1,10 @@
 ﻿@page "/categories/create"
-@using Microsoft.EntityFrameworkCore
 @using Models
-@inject IDbContextFactory<Models.NewsSystemContext> DbFactory
+@using Repository
+@inject ICategoryRepo CategoryRepo
 @inject NavigationManager NavigationManager
 
-<PageTitle>Create</PageTitle>
+<PageTitle>Create Category</PageTitle>
 
 <h1>Create</h1>
 
@@ -12,29 +12,35 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <EditForm method="post" Model="Category" OnValidSubmit="AddCategory" FormName="create" Enhance>
+        <EditForm Model="Category" OnValidSubmit="AddCategory" FormName="">
             <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert"/>
+            <ValidationSummary class="text-danger" role="alert" />
             <div class="mb-3">
-                <label for="categoryname" class="form-label">CategoryName:</label> 
-                <InputText id="categoryname" @bind-Value="Category.CategoryName" class="form-control" /> 
-                <ValidationMessage For="() => Category.CategoryName" class="text-danger" /> 
-            </div>        
+                <label for="categoryname" class="form-label">CategoryName:</label>
+                <InputText id="categoryname" @bind-Value="Category.CategoryName" class="form-control" />
+                <ValidationMessage For="() => Category.CategoryName" class="text-danger" />
+            </div>
             <div class="mb-3">
-                <label for="categorydesciption" class="form-label">CategoryDesciption:</label> 
-                <InputText id="categorydesciption" @bind-Value="Category.CategoryDesciption" class="form-control" /> 
-                <ValidationMessage For="() => Category.CategoryDesciption" class="text-danger" /> 
-            </div>        
+                <label for="categorydesciption" class="form-label">CategoryDesciption:</label>
+                <InputText id="categorydesciption" @bind-Value="Category.CategoryDesciption" class="form-control" />
+                <ValidationMessage For="() => Category.CategoryDesciption" class="text-danger" />
+            </div>
             <div class="mb-3">
-                <label for="parentcategoryid" class="form-label">ParentCategoryId:</label> 
-                <InputNumber id="parentcategoryid" @bind-Value="Category.ParentCategoryId" class="form-control" /> 
-                <ValidationMessage For="() => Category.ParentCategoryId" class="text-danger" /> 
-            </div>        
+                <label for="parentcategoryid" class="form-label">Parent Category:</label>
+                <InputSelect id="parentcategoryid" @bind-Value="SelectedParentId" class="form-control">
+                    <option value="">-- No Parent Category --</option>
+                    @foreach (var parent in parentCategories)
+                    {
+                        <option value="@parent.CategoryId">@parent.CategoryName</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => Category.ParentCategoryId" class="text-danger" />
+            </div>
             <div class="mb-3">
-                <label for="isactive" class="form-label">IsActive:</label> 
-                <InputCheckbox id="isactive" @bind-Value="Category.IsActive" class="form-check-input" /> 
-                <ValidationMessage For="() => Category.IsActive" class="text-danger" /> 
-            </div>        
+                <label for="isactive" class="form-label">IsActive:</label>
+                <InputCheckbox id="isactive" @bind-Value="Category.IsActive" class="form-check-input" />
+                <ValidationMessage For="() => Category.IsActive" class="text-danger" />
+            </div>
             <button type="submit" class="btn btn-primary">Create</button>
         </EditForm>
     </div>
@@ -45,15 +51,31 @@
 </div>
 
 @code {
-    [SupplyParameterFromForm]
-    private Category Category { get; set; } = new();
+    private Category Category { get; set; } = new() { IsActive = true };
 
-    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private IEnumerable<Category> parentCategories = Array.Empty<Category>();
+    private string? SelectedParentId { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // Get possible parent categories
+        parentCategories = CategoryRepo.GetActiveCategories();
+    }
+
     private async Task AddCategory()
     {
-        using var context = DbFactory.CreateDbContext();
-        context.Categories.Add(Category);
-        await context.SaveChangesAsync();
+        // Set the ParentCategoryId based on selection
+        if (string.IsNullOrEmpty(SelectedParentId))
+        {
+            Category.ParentCategoryId = null;
+        }
+        else
+        {
+            Category.ParentCategoryId = int.Parse(SelectedParentId);
+        }
+
+        // Add the category using repository
+        CategoryRepo.CreateCategory(Category);
         NavigationManager.NavigateTo("/categories");
     }
 }

@@ -1,70 +1,87 @@
 ﻿@page "/newsarticles/create"
-@using Microsoft.EntityFrameworkCore
 @using Models
-@inject IDbContextFactory<Models.NewsSystemContext> DbFactory
+@using Repository
+@inject INewsArticleRepo NewsArticleRepo
+@inject ICategoryRepo CategoryRepo
+@inject IAccountRepo AccountRepo
 @inject NavigationManager NavigationManager
 
-<PageTitle>Create</PageTitle>
+<PageTitle>Create News Article</PageTitle>
 
 <h1>Create</h1>
 
-<h2>NewsArticle</h2>
+<h2>News Article</h2>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <EditForm method="post" Model="NewsArticle" OnValidSubmit="AddNewsArticle" FormName="create" Enhance>
             <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert"/>
+            <ValidationSummary class="text-danger" role="alert" />
+
             <div class="mb-3">
-                <label for="newstitle" class="form-label">NewsTitle:</label> 
-                <InputText id="newstitle" @bind-Value="NewsArticle.NewsTitle" class="form-control" /> 
-                <ValidationMessage For="() => NewsArticle.NewsTitle" class="text-danger" /> 
-            </div>        
+                <label for="newstitle" class="form-label">News Title:</label>
+                <InputText id="newstitle" @bind-Value="NewsArticle.NewsTitle" class="form-control" />
+                <ValidationMessage For="() => NewsArticle.NewsTitle" class="text-danger" />
+            </div>
+
             <div class="mb-3">
-                <label for="headline" class="form-label">Headline:</label> 
-                <InputText id="headline" @bind-Value="NewsArticle.Headline" class="form-control" /> 
-                <ValidationMessage For="() => NewsArticle.Headline" class="text-danger" /> 
-            </div>        
+                <label for="headline" class="form-label">Headline:</label>
+                <InputText id="headline" @bind-Value="NewsArticle.Headline" class="form-control" />
+                <ValidationMessage For="() => NewsArticle.Headline" class="text-danger" />
+            </div>
+
             <div class="mb-3">
-                <label for="createddate" class="form-label">CreatedDate:</label> 
-                <InputDate id="createddate" @bind-Value="NewsArticle.CreatedDate" class="form-control" /> 
-                <ValidationMessage For="() => NewsArticle.CreatedDate" class="text-danger" /> 
-            </div>        
+                <label for="newscontent" class="form-label">News Content:</label>
+                <InputTextArea id="newscontent" @bind-Value="NewsArticle.NewsContent" class="form-control" rows="5" />
+                <ValidationMessage For="() => NewsArticle.NewsContent" class="text-danger" />
+            </div>
+
             <div class="mb-3">
-                <label for="newscontent" class="form-label">NewsContent:</label> 
-                <InputText id="newscontent" @bind-Value="NewsArticle.NewsContent" class="form-control" /> 
-                <ValidationMessage For="() => NewsArticle.NewsContent" class="text-danger" /> 
-            </div>        
+                <label for="newssource" class="form-label">News Source:</label>
+                <InputText id="newssource" @bind-Value="NewsArticle.NewsSource" class="form-control" />
+                <ValidationMessage For="() => NewsArticle.NewsSource" class="text-danger" />
+            </div>
+
             <div class="mb-3">
-                <label for="newssource" class="form-label">NewsSource:</label> 
-                <InputText id="newssource" @bind-Value="NewsArticle.NewsSource" class="form-control" /> 
-                <ValidationMessage For="() => NewsArticle.NewsSource" class="text-danger" /> 
-            </div>        
+                <label for="categoryid" class="form-label">Category:</label>
+                <InputSelect id="categoryid" @bind-Value="NewsArticle.CategoryId" class="form-control">
+                    <option value="0">-- Select a Category --</option>
+                    @foreach (var category in categories)
+                    {
+                        <option value="@category.CategoryId">@category.CategoryName</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => NewsArticle.CategoryId" class="text-danger" />
+            </div>
+
             <div class="mb-3">
-                <label for="categoryid" class="form-label">CategoryId:</label> 
-                <InputNumber id="categoryid" @bind-Value="NewsArticle.CategoryId" class="form-control" /> 
-                <ValidationMessage For="() => NewsArticle.CategoryId" class="text-danger" /> 
-            </div>        
+                <label for="newsstatus" class="form-label">News Status:</label>
+                <InputSelect id="newsstatus" @bind-Value="NewsArticle.NewsStatus" class="form-control">
+                    <option value="Draft">Draft</option>
+                    <option value="Published">Published</option>
+                    <option value="Archived">Archived</option>
+                </InputSelect>
+                <ValidationMessage For="() => NewsArticle.NewsStatus" class="text-danger" />
+            </div>
+
             <div class="mb-3">
-                <label for="newsstatus" class="form-label">NewsStatus:</label> 
-                <InputText id="newsstatus" @bind-Value="NewsArticle.NewsStatus" class="form-control" /> 
-                <ValidationMessage For="() => NewsArticle.NewsStatus" class="text-danger" /> 
-            </div>        
+                <label for="createdbyid" class="form-label">Created By:</label>
+                <InputSelect id="createdbyid" @bind-Value="NewsArticle.CreatedById" class="form-control">
+                    <option value="0">-- Select a User --</option>
+                    @foreach (var account in accounts)
+                    {
+                        <option value="@account.AccountId">@account.AccountName</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => NewsArticle.CreatedById" class="text-danger" />
+            </div>
+
             <div class="mb-3">
-                <label for="createdbyid" class="form-label">CreatedById:</label> 
-                <InputNumber id="createdbyid" @bind-Value="NewsArticle.CreatedById" class="form-control" /> 
-                <ValidationMessage For="() => NewsArticle.CreatedById" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="updatedbyid" class="form-label">UpdatedById:</label> 
-                <InputNumber id="updatedbyid" @bind-Value="NewsArticle.UpdatedById" class="form-control" /> 
-                <ValidationMessage For="() => NewsArticle.UpdatedById" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="modifieddate" class="form-label">ModifiedDate:</label> 
-                <InputDate id="modifieddate" @bind-Value="NewsArticle.ModifiedDate" class="form-control" /> 
-                <ValidationMessage For="() => NewsArticle.ModifiedDate" class="text-danger" /> 
-            </div>        
+                <label for="createddate" class="form-label">Created Date:</label>
+                <InputDate id="createddate" @bind-Value="NewsArticle.CreatedDate" class="form-control" />
+                <ValidationMessage For="() => NewsArticle.CreatedDate" class="text-danger" />
+            </div>
+
             <button type="submit" class="btn btn-primary">Create</button>
         </EditForm>
     </div>
@@ -76,14 +93,20 @@
 
 @code {
     [SupplyParameterFromForm]
-    private NewsArticle NewsArticle { get; set; } = new();
+    private NewsArticle NewsArticle { get; set; } = new() { CreatedDate = DateTime.Now, NewsStatus = "Draft" };
 
-    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private IEnumerable<Category> categories = Array.Empty<Category>();
+    private IEnumerable<SystemAccount> accounts = Array.Empty<SystemAccount>();
+
+    protected override void OnInitialized()
+    {
+        categories = CategoryRepo.GetActiveCategories();
+        accounts = AccountRepo.GetAllAccounts();
+    }
+
     private async Task AddNewsArticle()
     {
-        using var context = DbFactory.CreateDbContext();
-        context.NewsArticles.Add(NewsArticle);
-        await context.SaveChangesAsync();
+        NewsArticleRepo.AddNewsArticle(NewsArticle);
         NavigationManager.NavigateTo("/newsarticles");
     }
 }

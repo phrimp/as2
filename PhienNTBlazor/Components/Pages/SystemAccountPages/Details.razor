@@ -1,52 +1,116 @@
 ﻿@page "/systemaccounts/details"
-@using Microsoft.EntityFrameworkCore
 @using Models
-@inject IDbContextFactory<Models.NewsSystemContext> DbFactory
+@using Repository
+@inject IAccountRepo AccountRepo
 @inject NavigationManager NavigationManager
 
-<PageTitle>Details</PageTitle>
+<PageTitle>Account Details</PageTitle>
 
 <h1>Details</h1>
 
 <div>
-    <h2>SystemAccount</h2>
+    <h2>System Account</h2>
     <hr />
-    @if (systemaccount is null)
+    @if (account is null)
     {
         <p><em>Loading...</em></p>
     }
-    else {
+    else
+    {
         <dl class="row">
-            <dt class="col-sm-2">AccountName</dt>
-            <dd class="col-sm-10">@systemaccount.AccountName</dd>
-            <dt class="col-sm-2">AccountEmail</dt>
-            <dd class="col-sm-10">@systemaccount.AccountEmail</dd>
-            <dt class="col-sm-2">AccountRole</dt>
-            <dd class="col-sm-10">@systemaccount.AccountRole</dd>
-            <dt class="col-sm-2">AccountPassword</dt>
-            <dd class="col-sm-10">@systemaccount.AccountPassword</dd>
+            <dt class="col-sm-2">Account Name</dt>
+            <dd class="col-sm-10">@account.AccountName</dd>
+            <dt class="col-sm-2">Email</dt>
+            <dd class="col-sm-10">@account.AccountEmail</dd>
+            <dt class="col-sm-2">Role</dt>
+            <dd class="col-sm-10">@account.AccountRole</dd>
+            <dt class="col-sm-2">Password (Hashed)</dt>
+            <dd class="col-sm-10">@account.AccountPassword</dd>
         </dl>
+
+        @if (createdArticles.Any())
+        {
+            <h3>Articles Created</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Created Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var article in createdArticles)
+                    {
+                        <tr>
+                            <td>
+                                <a href="@($"/newsarticles/details?newsarticleid={article.NewsArticleId}")">
+                                    @article.NewsTitle
+                                </a>
+                            </td>
+                            <td>@article.CreatedDate.ToShortDateString()</td>
+                            <td>@article.NewsStatus</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+        @if (updatedArticles.Any())
+        {
+            <h3>Articles Updated</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Modified Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var article in updatedArticles)
+                    {
+                        <tr>
+                            <td>
+                                <a href="@($"/newsarticles/details?newsarticleid={article.NewsArticleId}")">
+                                    @article.NewsTitle
+                                </a>
+                            </td>
+                            <td>@(article.ModifiedDate?.ToShortDateString() ?? "N/A")</td>
+                            <td>@article.NewsStatus</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
         <div>
-            <a href="@($"/systemaccounts/edit?accountid={systemaccount.AccountId}")">Edit</a> |
-            <a href="@($"/systemaccounts")">Back to List</a>
+            <a href="@($"/systemaccounts/edit?accountid={account.AccountId}")">Edit</a> |
+            <a href="/systemaccounts">Back to List</a>
         </div>
     }
 </div>
 
 @code {
-    private SystemAccount? systemaccount;
+    private SystemAccount? account;
+    private IEnumerable<NewsArticle> createdArticles = Array.Empty<NewsArticle>();
+    private IEnumerable<NewsArticle> updatedArticles = Array.Empty<NewsArticle>();
 
     [SupplyParameterFromQuery]
     private int AccountId { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        using var context = DbFactory.CreateDbContext();
-        systemaccount = await context.SystemAccounts.FirstOrDefaultAsync(m => m.AccountId == AccountId);
+        account = AccountRepo.GetAccountById(AccountId);
 
-        if (systemaccount is null)
+        if (account is null)
         {
             NavigationManager.NavigateTo("notfound");
+            return;
         }
+
+        // Get articles created and updated by this account
+        createdArticles = AccountRepo.GetArticlesCreatedByAccount(AccountId);
+        updatedArticles = AccountRepo.GetArticlesUpdatedByAccount(AccountId);
     }
 }

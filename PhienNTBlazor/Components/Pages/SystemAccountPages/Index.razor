@@ -1,39 +1,36 @@
 ﻿@page "/systemaccounts"
-@using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Models
-@using Models
-@implements IAsyncDisposable
-@inject IDbContextFactory<Models.NewsSystemContext> DbFactory
+@using Repository
+@inject IAccountRepo AccountRepo
 
-<PageTitle>Index</PageTitle>
+<PageTitle>System Accounts</PageTitle>
 
-<h1>Index</h1>
+<h1>System Accounts</h1>
 
 <p>
     <a href="systemaccounts/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="context.SystemAccounts">
-    <PropertyColumn Property="systemaccount => systemaccount.AccountName" />
-    <PropertyColumn Property="systemaccount => systemaccount.AccountEmail" />
-    <PropertyColumn Property="systemaccount => systemaccount.AccountRole" />
-    <PropertyColumn Property="systemaccount => systemaccount.AccountPassword" />
+<QuickGrid Class="table" Items="@(accounts.AsQueryable())">
+    <PropertyColumn Property="account => account.AccountName" />
+    <PropertyColumn Property="account => account.AccountEmail" />
+    <PropertyColumn Property="account => account.AccountRole" />
+    <PropertyColumn Property="account => account.AccountPassword" Title="Password (Hashed)" />
 
-    <TemplateColumn Context="systemaccount">
-        <a href="@($"systemaccounts/edit?accountid={systemaccount.AccountId}")">Edit</a> |
-        <a href="@($"systemaccounts/details?accountid={systemaccount.AccountId}")">Details</a> |
-        <a href="@($"systemaccounts/delete?accountid={systemaccount.AccountId}")">Delete</a>
+    <TemplateColumn Context="account">
+        <a href="@($"systemaccounts/edit?accountid={account.AccountId}")">Edit</a> |
+        <a href="@($"systemaccounts/details?accountid={account.AccountId}")">Details</a> |
+        <a href="@($"systemaccounts/delete?accountid={account.AccountId}")">Delete</a>
     </TemplateColumn>
 </QuickGrid>
 
 @code {
-    private NewsSystemContext context = default!;
+    private IEnumerable<SystemAccount> accounts = Array.Empty<SystemAccount>();
 
     protected override void OnInitialized()
     {
-        context = DbFactory.CreateDbContext();
+        // Get all accounts from the repository
+        accounts = AccountRepo.GetAllAccounts();
     }
-
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }

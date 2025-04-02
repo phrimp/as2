@@ -1,10 +1,10 @@
 ﻿@page "/categories/edit"
-@using Microsoft.EntityFrameworkCore
 @using Models
-@inject IDbContextFactory<Models.NewsSystemContext> DbFactory
+@using Repository
+@inject ICategoryRepo CategoryRepo
 @inject NavigationManager NavigationManager
 
-<PageTitle>Edit</PageTitle>
+<PageTitle>Edit Category</PageTitle>
 
 <h1>Edit</h1>
 
@@ -20,7 +20,7 @@ else
         <div class="col-md-4">
             <EditForm method="post" Model="Category" OnValidSubmit="UpdateCategory" FormName="edit" Enhance>
                 <DataAnnotationsValidator />
-                <ValidationSummary role="alert"/>
+                <ValidationSummary role="alert" />
                 <input type="hidden" name="Category.CategoryId" value="@Category.CategoryId" />
                 <div class="mb-3">
                     <label for="categoryname" class="form-label">CategoryName:</label>
@@ -33,8 +33,17 @@ else
                     <ValidationMessage For="() => Category.CategoryDesciption" class="text-danger" />
                 </div>
                 <div class="mb-3">
-                    <label for="parentcategoryid" class="form-label">ParentCategoryId:</label>
-                    <InputNumber id="parentcategoryid" @bind-Value="Category.ParentCategoryId" class="form-control" />
+                    <label for="parentcategoryid" class="form-label">Parent Category:</label>
+                    <InputSelect id="parentcategoryid" @bind-Value="SelectedParentId" class="form-control">
+                        <option value="">-- No Parent Category --</option>
+                        @foreach (var parent in parentCategories)
+                        {
+                            @if (parent.CategoryId != Category.CategoryId)
+                            {
+                                <option value="@parent.CategoryId">@parent.CategoryName</option>
+                            }
+                        }
+                    </InputSelect>
                     <ValidationMessage For="() => Category.ParentCategoryId" class="text-danger" />
                 </div>
                 <div class="mb-3">
@@ -59,46 +68,40 @@ else
     [SupplyParameterFromForm]
     private Category? Category { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    private IEnumerable<Category> parentCategories = Array.Empty<Category>();
+    private string? SelectedParentId { get; set; }
+
+    protected override void OnInitialized()
     {
-        using var context = DbFactory.CreateDbContext();
-        Category ??= await context.Categories.FirstOrDefaultAsync(m => m.CategoryId == CategoryId);
-
-        if (Category is null)
+        if (Category == null)
         {
-            NavigationManager.NavigateTo("notfound");
-        }
-    }
+            Category = CategoryRepo.GetCategoryById(CategoryId);
 
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
-    private async Task UpdateCategory()
-    {
-        using var context = DbFactory.CreateDbContext();
-        context.Attach(Category!).State = EntityState.Modified;
-
-        try
-        {
-            await context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!CategoryExists(Category!.CategoryId))
+            if (Category is null)
             {
                 NavigationManager.NavigateTo("notfound");
-            }
-            else
-            {
-                throw;
+                return;
             }
         }
 
-        NavigationManager.NavigateTo("/categories");
+        parentCategories = CategoryRepo.GetActiveCategories()
+            .Where(c => c.CategoryId != CategoryId);
+
+        SelectedParentId = Category.ParentCategoryId?.ToString() ?? "";
     }
 
-    private bool CategoryExists(int categoryid)
+    private async Task UpdateCategory()
     {
-        using var context = DbFactory.CreateDbContext();
-        return context.Categories.Any(e => e.CategoryId == categoryid);
+        if (string.IsNullOrEmpty(SelectedParentId))
+        {
+            Category!.ParentCategoryId = null;
+        }
+        else
+        {
+            Category!.ParentCategoryId = int.Parse(SelectedParentId);
+        }
+
+        CategoryRepo.UpdateCategory(Category);
+        NavigationManager.NavigateTo("/categories");
     }
 }

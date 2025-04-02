@@ -1,10 +1,10 @@
 ﻿@page "/categories/edit"
-@using Microsoft.EntityFrameworkCore
 @using Models
-@inject IDbContextFactory<Models.NewsSystemContext> DbFactory
+@using Repository
+@inject ICategoryRepo CategoryRepo
 @inject NavigationManager NavigationManager
 
-<PageTitle>Edit</PageTitle>
+<PageTitle>Edit Category</PageTitle>
 
 <h1>Edit</h1>
 
@@ -20,37 +20,43 @@ else
         <div class="col-md-4">
             <EditForm method="post" Model="Category" OnValidSubmit="UpdateCategory" FormName="edit" Enhance>
                 <DataAnnotationsValidator />
-                <ValidationSummary role="alert"/>
+                <ValidationSummary role="alert" />
                 <input type="hidden" name="Category.CategoryId" value="@Category.CategoryId" />
                 <div class="mb-3">
-                    <label for="categoryname" class="form-label">CategoryName:</label>
+                    <label for="categoryname" class="form-label">Category Name:</label>
                     <InputText id="categoryname" @bind-Value="Category.CategoryName" class="form-control" />
                     <ValidationMessage For="() => Category.CategoryName" class="text-danger" />
                 </div>
                 <div class="mb-3">
-                    <label for="categorydesciption" class="form-label">CategoryDesciption:</label>
+                    <label for="categorydesciption" class="form-label">Description:</label>
                     <InputText id="categorydesciption" @bind-Value="Category.CategoryDesciption" class="form-control" />
                     <ValidationMessage For="() => Category.CategoryDesciption" class="text-danger" />
                 </div>
                 <div class="mb-3">
-                    <label for="parentcategoryid" class="form-label">ParentCategoryId:</label>
-                    <InputNumber id="parentcategoryid" @bind-Value="Category.ParentCategoryId" class="form-control" />
+                    <label for="parentcategoryid" class="form-label">Parent Category:</label>
+                    <InputSelect id="parentcategoryid" @bind-Value="Category.ParentCategoryId" class="form-select">
+                        <option value="">-- None --</option>
+                        @foreach (var parent in parentCategories)
+                        {
+                            @if (parent.CategoryId != Category.CategoryId)
+                            {
+                                <option value="@parent.CategoryId">@parent.CategoryName</option>
+                            }
+                        }
+                    </InputSelect>
                     <ValidationMessage For="() => Category.ParentCategoryId" class="text-danger" />
                 </div>
-                <div class="mb-3">
-                    <label for="isactive" class="form-label">IsActive:</label>
+                <div class="mb-3 form-check">
                     <InputCheckbox id="isactive" @bind-Value="Category.IsActive" class="form-check-input" />
+                    <label for="isactive" class="form-check-label">Is Active</label>
                     <ValidationMessage For="() => Category.IsActive" class="text-danger" />
                 </div>
                 <button type="submit" class="btn btn-primary">Save</button>
+                <a href="/categories" class="btn btn-secondary">Back to List</a>
             </EditForm>
         </div>
     </div>
 }
-
-<div>
-    <a href="/categories">Back to List</a>
-</div>
 
 @code {
     [SupplyParameterFromQuery]
@@ -59,10 +65,13 @@ else
     [SupplyParameterFromForm]
     private Category? Category { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    private IEnumerable<Category> parentCategories = new List<Category>();
+
+    protected override void OnInitialized()
     {
-        using var context = DbFactory.CreateDbContext();
-        Category ??= await context.Categories.FirstOrDefaultAsync(m => m.CategoryId == CategoryId);
+        parentCategories = CategoryRepo.GetAllCategories();
+
+        Category ??= CategoryRepo.GetCategoryById(CategoryId);
 
         if (Category is null)
         {
@@ -70,35 +79,14 @@ else
         }
     }
 
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
-    private async Task UpdateCategory()
+    private void UpdateCategory()
     {
-        using var context = DbFactory.CreateDbContext();
-        context.Attach(Category!).State = EntityState.Modified;
-
-        try
+        if (Category.ParentCategoryId == 0)
         {
-            await context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!CategoryExists(Category!.CategoryId))
-            {
-                NavigationManager.NavigateTo("notfound");
-            }
-            else
-            {
-                throw;
-            }
+            Category.ParentCategoryId = null;
         }
 
+        CategoryRepo.UpdateCategory(Category);
         NavigationManager.NavigateTo("/categories");
-    }
-
-    private bool CategoryExists(int categoryid)
-    {
-        using var context = DbFactory.CreateDbContext();
-        return context.Categories.Any(e => e.CategoryId == categoryid);
     }
 }

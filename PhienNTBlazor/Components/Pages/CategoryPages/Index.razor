@@ -1,39 +1,49 @@
 ﻿@page "/categories"
-@using Microsoft.EntityFrameworkCore
-@using Microsoft.AspNetCore.Components.QuickGrid
 @using Models
-@using Models
-@implements IAsyncDisposable
-@inject IDbContextFactory<Models.NewsSystemContext> DbFactory
+@using Repository
+@inject ICategoryRepo CategoryRepo
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Categories</PageTitle>
 
-<h1>Index</h1>
+<h1>Categories</h1>
 
 <p>
     <a href="categories/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="context.Categories">
-    <PropertyColumn Property="category => category.CategoryName" />
-    <PropertyColumn Property="category => category.CategoryDesciption" />
-    <PropertyColumn Property="category => category.ParentCategoryId" />
-    <PropertyColumn Property="category => category.IsActive" />
-
-    <TemplateColumn Context="category">
-        <a href="@($"categories/edit?categoryid={category.CategoryId}")">Edit</a> |
-        <a href="@($"categories/details?categoryid={category.CategoryId}")">Details</a> |
-        <a href="@($"categories/delete?categoryid={category.CategoryId}")">Delete</a>
-    </TemplateColumn>
-</QuickGrid>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Category Name</th>
+            <th>Description</th>
+            <th>Parent Category</th>
+            <th>Is Active</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in categories)
+        {
+            <tr>
+                <td>@category.CategoryName</td>
+                <td>@category.CategoryDesciption</td>
+                <td>@category.ParentCategoryId</td>
+                <td>@(category.IsActive ? "Active" : "Inactive")</td>
+                <td>
+                    <a href="@($"categories/edit?categoryid={category.CategoryId}")">Edit</a> |
+                    <a href="@($"categories/details?categoryid={category.CategoryId}")">Details</a> |
+                    <a href="@($"categories/delete?categoryid={category.CategoryId}")">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 
 @code {
-    private NewsSystemContext context = default!;
+    private IEnumerable<Category> categories = new List<Category>();
 
     protected override void OnInitialized()
     {
-        context = DbFactory.CreateDbContext();
+        categories = CategoryRepo.GetAllCategories();
     }
-
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }

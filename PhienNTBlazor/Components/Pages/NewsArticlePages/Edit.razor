@@ -118,7 +118,7 @@ else
         var creator = AccountRepo.GetAccountById(NewsArticle.CreatedById);
         createdByName = creator?.AccountName ?? "Unknown";
 
-        NewsArticle.UpdatedById = 1; // Default to first user (in a real app, would be current user)
+        NewsArticle.UpdatedById = 1;
     }
 
     private void UpdateNewsArticle()

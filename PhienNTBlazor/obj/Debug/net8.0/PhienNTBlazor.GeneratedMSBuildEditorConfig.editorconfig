@@ -36,6 +36,26 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBdXRoXEF1dGhvcml6ZVZpZXcucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/Work/PhienNT_Net1709_AS2/PhienNTBlazor/Components/Pages/Admin/SystemAccountPages/Create.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxTeXN0ZW1BY2NvdW50UGFnZXNcQ3JlYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Work/PhienNT_Net1709_AS2/PhienNTBlazor/Components/Pages/Admin/SystemAccountPages/Delete.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxTeXN0ZW1BY2NvdW50UGFnZXNcRGVsZXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Work/PhienNT_Net1709_AS2/PhienNTBlazor/Components/Pages/Admin/SystemAccountPages/Details.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxTeXN0ZW1BY2NvdW50UGFnZXNcRGV0YWlscy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Work/PhienNT_Net1709_AS2/PhienNTBlazor/Components/Pages/Admin/SystemAccountPages/Edit.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxTeXN0ZW1BY2NvdW50UGFnZXNcRWRpdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Work/PhienNT_Net1709_AS2/PhienNTBlazor/Components/Pages/Admin/SystemAccountPages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxTeXN0ZW1BY2NvdW50UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/Work/PhienNT_Net1709_AS2/PhienNTBlazor/Components/Pages/CategoryPages/Create.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDYXRlZ29yeVBhZ2VzXENyZWF0ZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 

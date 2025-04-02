@@ -17,12 +17,22 @@ namespace Repository
 
         public void DeleteCategory(int id) => CategoryDAO.Instance.DeleteCategory(id);
 
-        public IEnumerable<Category> GetActiveCategories() => CategoryDAO.Instance.GetActiveCategories();
+        public IEnumerable<Category> GetActiveCategories()
+        {
+            return CategoryDAO.Instance.GetAllCategories().Where(c => c.IsActive == true);
+        }
 
-        public IEnumerable<Category> SearchCategories(string searchTerm) =>
-            CategoryDAO.Instance.SearchCategories(searchTerm);
+        public IEnumerable<Category> SearchCategories(string searchTerm)
+        {
+            return CategoryDAO.Instance.GetAllCategories()
+                .Where(c => c.CategoryName.Contains(searchTerm) ||
+                           (c.CategoryDesciption != null && c.CategoryDesciption.Contains(searchTerm)));
+        }
 
-        public bool IsCategoryUsedInArticles(int categoryId) =>
-            CategoryDAO.Instance.IsCategoryUsedInArticles(categoryId);
+        public bool IsCategoryUsedInArticles(int categoryId)
+        {
+            var newsArticles = new NewsArticleDAO().GetAllNewsArticles();
+            return newsArticles.Any(a => a.CategoryId == categoryId);
+        }
     }
 }

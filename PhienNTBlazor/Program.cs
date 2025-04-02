@@ -1,10 +1,14 @@
-using PhienNTBlazor.Components;
+﻿using PhienNTBlazor.Components;
+using Microsoft.EntityFrameworkCore;
+using Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddScoped<INewsArticleRepo, NewsArticleRepo>();
 
 var app = builder.Build();
 

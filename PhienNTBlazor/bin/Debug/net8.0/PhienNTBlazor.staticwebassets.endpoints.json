@@ -3,7 +3,7 @@
   "ManifestType": "Build",
   "Endpoints": [
     {
-      "Route": "PhienNTBlazor.1s8lhxa1n0.styles.css",
+      "Route": "PhienNTBlazor.5k5627xfjd.styles.css",
       "AssetFile": "PhienNTBlazor.styles.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -17,7 +17,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "5909"
+          "Value": "6031"
         },
         {
           "Name": "Content-Type",
@@ -25,21 +25,25 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"TysSXRoLFXy8ab9CfeRxEvtSCxs44QLX6+uuXJECujA=\""
+          "Value": "\"pe+vGIxLJ6oK6t1AIPS23Pm4+5Qkp/+4BQeBHYNZHDs=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 01 Apr 2025 18:24:12 GMT"
+          "Value": "Wed, 02 Apr 2025 07:48:36 GMT"
+        },
+        {
+          "Name": "Link",
+          "Value": "<_content/Microsoft.AspNetCore.Components.QuickGrid/Microsoft.AspNetCore.Components.QuickGrid.bundle.scp.css>; rel=\"preload\"; as=\"style\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "1s8lhxa1n0"
+          "Value": "5k5627xfjd"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-TysSXRoLFXy8ab9CfeRxEvtSCxs44QLX6+uuXJECujA="
+          "Value": "sha256-pe+vGIxLJ6oK6t1AIPS23Pm4+5Qkp/+4BQeBHYNZHDs="
         },
         {
           "Name": "label",
@@ -62,7 +66,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "5909"
+          "Value": "6031"
         },
         {
           "Name": "Content-Type",
@@ -70,17 +74,95 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"TysSXRoLFXy8ab9CfeRxEvtSCxs44QLX6+uuXJECujA=\""
+          "Value": "\"pe+vGIxLJ6oK6t1AIPS23Pm4+5Qkp/+4BQeBHYNZHDs=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 01 Apr 2025 18:24:12 GMT"
+          "Value": "Wed, 02 Apr 2025 07:48:36 GMT"
+        },
+        {
+          "Name": "Link",
+          "Value": "<_content/Microsoft.AspNetCore.Components.QuickGrid/Microsoft.AspNetCore.Components.QuickGrid.bundle.scp.css>; rel=\"preload\"; as=\"style\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-TysSXRoLFXy8ab9CfeRxEvtSCxs44QLX6+uuXJECujA="
+          "Value": "sha256-pe+vGIxLJ6oK6t1AIPS23Pm4+5Qkp/+4BQeBHYNZHDs="
+        }
+      ]
+    },
+    {
+      "Route": "_content/Microsoft.AspNetCore.Components.QuickGrid/Microsoft.AspNetCore.Components.QuickGrid.bundle.scp.css",
+      "AssetFile": "_content/Microsoft.AspNetCore.Components.QuickGrid/Microsoft.AspNetCore.Components.QuickGrid.bundle.scp.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "8251"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Nuu0BHvGBlwN6c5FSVjV9yxX0YPfwg3ufdOucRJCOz0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 21 Oct 2024 23:57:16 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-Nuu0BHvGBlwN6c5FSVjV9yxX0YPfwg3ufdOucRJCOz0="
+        }
+      ]
+    },
+    {
+      "Route": "_content/Microsoft.AspNetCore.Components.QuickGrid/QuickGrid.razor.js",
+      "AssetFile": "_content/Microsoft.AspNetCore.Components.QuickGrid/QuickGrid.razor.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2563"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"tnamWuQ2F5I2J8hbtBt4/9i8Mb2y2o+9Tepj5tUrSdU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 21 Oct 2024 23:38:08 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-tnamWuQ2F5I2J8hbtBt4/9i8Mb2y2o+9Tepj5tUrSdU="
         }
       ]
     },
@@ -111,7 +193,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 01 Apr 2025 16:03:06 GMT"
+          "Value": "Wed, 02 Apr 2025 07:46:55 GMT"
         }
       ],
       "EndpointProperties": [
@@ -148,7 +230,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 01 Apr 2025 16:03:06 GMT"
+          "Value": "Wed, 02 Apr 2025 07:46:55 GMT"
         }
       ],
       "EndpointProperties": [
@@ -193,7 +275,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 01 Apr 2025 16:03:06 GMT"
+          "Value": "Wed, 02 Apr 2025 07:46:55 GMT"
         }
       ],
       "EndpointProperties": [
@@ -238,7 +320,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 01 Apr 2025 16:03:06 GMT"
+          "Value": "Wed, 02 Apr 2025 07:46:55 GMT"
         }
       ],
       "EndpointProperties": [
@@ -275,7 +357,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 01 Apr 2025 16:03:06 GMT"
+          "Value": "Wed, 02 Apr 2025 07:46:55 GMT"
         }
       ],
       "EndpointProperties": [
@@ -320,7 +402,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 01 Apr 2025 16:03:06 GMT"
+          "Value": "Wed, 02 Apr 2025 07:46:55 GMT"
         }
       ],
       "EndpointProperties": [
@@ -357,7 +439,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 01 Apr 2025 16:03:06 GMT"
+          "Value": "Wed, 02 Apr 2025 07:46:55 GMT"
         }
       ],
       "EndpointProperties": [
@@ -402,7 +484,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 01 Apr 2025 16:03:06 GMT"
+          "Value": "Wed, 02 Apr 2025 07:46:55 GMT"
         }
       ],
       "EndpointProperties": [

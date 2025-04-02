@@ -1,0 +1,39 @@
+﻿@page "/systemaccounts"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Models
+@using Models
+@implements IAsyncDisposable
+@inject IDbContextFactory<Models.NewsSystemContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="systemaccounts/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.SystemAccounts">
+    <PropertyColumn Property="systemaccount => systemaccount.AccountName" />
+    <PropertyColumn Property="systemaccount => systemaccount.AccountEmail" />
+    <PropertyColumn Property="systemaccount => systemaccount.AccountRole" />
+    <PropertyColumn Property="systemaccount => systemaccount.AccountPassword" />
+
+    <TemplateColumn Context="systemaccount">
+        <a href="@($"systemaccounts/edit?accountid={systemaccount.AccountId}")">Edit</a> |
+        <a href="@($"systemaccounts/details?accountid={systemaccount.AccountId}")">Details</a> |
+        <a href="@($"systemaccounts/delete?accountid={systemaccount.AccountId}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private NewsSystemContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

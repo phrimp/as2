@@ -29,3 +29,4 @@ E:\Work\PhienNT_Net1709_A02\DAO\obj\Debug\net8.0\DAO.dll
 E:\Work\PhienNT_Net1709_A02\DAO\obj\Debug\net8.0\refint\DAO.dll
 E:\Work\PhienNT_Net1709_A02\DAO\obj\Debug\net8.0\DAO.pdb
 E:\Work\PhienNT_Net1709_A02\DAO\obj\Debug\net8.0\ref\DAO.dll
+E:\Work\PhienNT_Net1709_A02\DAO\obj\Debug\net8.0\DAO.sourcelink.json

@@ -33,3 +33,4 @@ E:\Work\PhienNT_Net1709_A02\Repository\obj\Debug\net8.0\Repository.dll
 E:\Work\PhienNT_Net1709_A02\Repository\obj\Debug\net8.0\refint\Repository.dll
 E:\Work\PhienNT_Net1709_A02\Repository\obj\Debug\net8.0\Repository.pdb
 E:\Work\PhienNT_Net1709_A02\Repository\obj\Debug\net8.0\ref\Repository.dll
+E:\Work\PhienNT_Net1709_A02\Repository\obj\Debug\net8.0\Repository.sourcelink.json

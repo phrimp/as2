@@ -1,0 +1,45 @@
+﻿@page "/newsarticles"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Models
+@using Models
+@implements IAsyncDisposable
+@inject IDbContextFactory<Models.NewsSystemContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="newsarticles/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.NewsArticles">
+    <PropertyColumn Property="newsarticle => newsarticle.NewsTitle" />
+    <PropertyColumn Property="newsarticle => newsarticle.Headline" />
+    <PropertyColumn Property="newsarticle => newsarticle.CreatedDate" />
+    <PropertyColumn Property="newsarticle => newsarticle.NewsContent" />
+    <PropertyColumn Property="newsarticle => newsarticle.NewsSource" />
+    <PropertyColumn Property="newsarticle => newsarticle.CategoryId" />
+    <PropertyColumn Property="newsarticle => newsarticle.NewsStatus" />
+    <PropertyColumn Property="newsarticle => newsarticle.CreatedById" />
+    <PropertyColumn Property="newsarticle => newsarticle.UpdatedById" />
+    <PropertyColumn Property="newsarticle => newsarticle.ModifiedDate" />
+
+    <TemplateColumn Context="newsarticle">
+        <a href="@($"newsarticles/edit?newsarticleid={newsarticle.NewsArticleId}")">Edit</a> |
+        <a href="@($"newsarticles/details?newsarticleid={newsarticle.NewsArticleId}")">Details</a> |
+        <a href="@($"newsarticles/delete?newsarticleid={newsarticle.NewsArticleId}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private NewsSystemContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

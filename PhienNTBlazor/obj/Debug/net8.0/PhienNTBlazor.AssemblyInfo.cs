@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PhienNTBlazor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0c13437cc61e09e6106074b3696bd70541e2e018")]
 [assembly: System.Reflection.AssemblyProductAttribute("PhienNTBlazor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PhienNTBlazor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
